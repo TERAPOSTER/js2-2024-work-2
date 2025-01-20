@@ -4,9 +4,116 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite App</title>
+    <title>時間割アプリ</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+      }
+      th, td {
+        border: 1px solid #ddd;
+        text-align: center;
+        padding: 10px;
+      }
+      th {
+        background-color: #f4f4f4;
+      }
+      .highlight {
+        background-color: #ffd700;
+      }
+    </style>
   </head>
   <body>
+    <h2>授業の追加</h2>
+    <form id="add-class-form">
+      <label for="day">曜日:</label>
+      <select id="day" name="day">
+        <option value="月曜日">月曜日</option>
+        <option value="火曜日">火曜日</option>
+        <option value="水曜日">水曜日</option>
+        <option value="木曜日">木曜日</option>
+        <option value="金曜日">金曜日</option>
+      </select><br>
+
+      <label for="period">時間帯:</label>
+      <select id="period" name="period">
+        <option value="1">1限</option>
+        <option value="2">2限</option>
+        <option value="3">3限</option>
+        <option value="4">4限</option>
+        <option value="5">5限</option>
+      </select><br>
+
+      <label for="subject">授業名:</label>
+      <input type="text" id="subject" name="subject" required><br>
+      <label for="classroom">教室番号:</label>
+      <input type="text" id="classroom" name="classroom" required><br>
+      <button type="submit">授業を追加</button>
+    </form>
+
+    <h1>時間割</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>時間</th>
+          <th>月曜日</th>
+          <th>火曜日</th>
+          <th>水曜日</th>
+          <th>木曜日</th>
+          <th>金曜日</th>
+        </tr>
+      </thead>
+      <tbody id="timetable-body">
+        <!-- JavaScriptで動的に内容を追加 -->
+        <tr>
+          <td>1限</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>2限</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>3限</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>4限</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td>5限</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
     <div id="app"></div>
     <script type="module" src="/src/main.js"></script>
   </body>
