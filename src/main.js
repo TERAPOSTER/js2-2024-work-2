@@ -18,10 +18,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const row = timetableBody.querySelector(`tr:nth-child(${period})`);
     const cell = row.querySelector(`td:nth-child(${dayIndex + 1})`);
 
+    // 追加する授業内容を設定
     cell.innerHTML = `<div><strong>${subject}</strong><br><span>${classroom}</span></div>`;
 
     // フォームのリセット
     addClassForm.reset();
+
+    // 現在のセルの内容が正常に反映されることを確認
+    console.log("授業が追加されました: ", subject, classroom);
   });
 
   // 右クリックメニューの表示
@@ -67,19 +71,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // 次の授業をハイライト
   function highlightNextClass() {
     const now = new Date();
-    const currentDayIndex = now.getDay() - 1;
+    const currentDayIndex = now.getDay() - 1; // 0 (日曜日) は除外
     const currentTime = now.getHours() * 100 + now.getMinutes();
-    
+
     let nextClassCell = null;
 
     // 各曜日と時間帯をチェック
     for (let period = 1; period <= 5; period++) {
       const row = timetableBody.querySelector(`tr:nth-child(${period})`);
-      const cell = row.querySelector(`td:nth-child(${currentDayIndex + 2})`);
+      const cell = row.querySelector(`td:nth-child(${currentDayIndex + 2})`); // 曜日のインデックスに基づくセル
 
       if (cell && cell.innerHTML) {
         const classTime = parseInt(cell.getAttribute('data-time'), 10);
-        if (classTime > currentTime) {
+        if (classTime && classTime > currentTime) {
           nextClassCell = cell;
           break;
         }
