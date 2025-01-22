@@ -46,6 +46,25 @@
       .context-menu li:hover {
         background: #f4f4f4;
       }
+      /* 点滅アニメーション */
+      @keyframes highlight-pink {
+        0% {
+          box-shadow: 0 0 10px 5px rgba(255, 20, 147, 0.8);
+        }
+        50% {
+          box-shadow: 0 0 20px 10px rgba(255, 20, 147, 1);
+        }
+        100% {
+          box-shadow: 0 0 10px 5px rgba(255, 20, 147, 0.8);
+        }
+      }
+
+      /* ハイライト用クラス */
+      .highlight {
+        animation: highlight-pink 1s infinite;
+        border: 3px solid hotpink;
+        border-radius: 5px;
+      }
     </style>
   </head>
   <body>
@@ -142,6 +161,6 @@
     </div>
 
     <!-- JavaScriptファイルを読み込む -->
-    <script src="./main.js"></script>
+    <script src="src/main.js"></script>
   </body>
 </html>
