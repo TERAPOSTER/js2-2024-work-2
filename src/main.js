@@ -75,3 +75,49 @@ document.addEventListener('DOMContentLoaded', () => {
   highlightNextClass();
   setInterval(highlightNextClass, 60000);
 });
+
+
+// news.js: ニュース取得ロジック
+
+const newsContainer = document.querySelector('#news-container'); // 空白部分の要素
+
+const API_KEY = 'd9440fbfd28f4d4daa669e95a2728fb0';
+const ENDPOINT = `https://newsapi.org/v2/top-headlines?country=jp&apiKey=${API_KEY}`;
+
+async function fetchAndDisplayNews() {
+  try {
+    const response = await fetch(ENDPOINT);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(`Error ${response.status}: ${data.message}`);
+    }
+    
+    if (data.articles && data.articles.length > 0) {
+      const randomArticle = data.articles[Math.floor(Math.random() * data.articles.length)];
+      
+      const newsTitle = document.createElement('a');
+      newsTitle.href = randomArticle.url;
+      newsTitle.textContent = randomArticle.title;
+      newsTitle.target = '_blank';
+      newsTitle.style.textDecoration = 'none';
+      newsTitle.style.color = '#000';
+      newsTitle.style.fontSize = '16px';
+      newsTitle.style.margin = '10px 0';
+
+      newsContainer.innerHTML = ''; 
+      newsContainer.appendChild(newsTitle);
+    } else {
+      newsContainer.textContent = 'ニュースが見つかりませんでした。';
+    }
+  } catch (error) {
+    console.error('ニュース取得エラー:', error);
+    newsContainer.textContent = 'ニュースを取得できませんでした。';
+  }
+}
+
+// 初期化
+fetchAndDisplayNews();
+
+// 定期更新（60秒ごと）
+setInterval(fetchAndDisplayNews, 60000);
