@@ -13,31 +13,69 @@ document.addEventListener('DOMContentLoaded', () => {
     5: [1620, 1750], // 5限 16:20-17:50
   };
 
+  // 時間割データを保存
+  function saveTimetable() {
+    const timetableData = [];
+
+    timetableBody.querySelectorAll('tr').forEach((row, periodIndex) => {
+      const periodData = [];
+      row.querySelectorAll('td').forEach(cell => {
+        const cellData = cell.innerHTML ? {
+          content: cell.innerHTML,
+          time: cell.getAttribute('data-time'),
+        } : null;
+        periodData.push(cellData);
+      });
+      timetableData.push(periodData);
+    });
+
+    localStorage.setItem('timetable', JSON.stringify(timetableData));
+  }
+
+  // 時間割データを復元
+  function loadTimetable() {
+    const timetableData = JSON.parse(localStorage.getItem('timetable'));
+    if (!timetableData) return;
+
+    timetableData.forEach((periodData, periodIndex) => {
+      periodData.forEach((cellData, dayIndex) => {
+        if (cellData) {
+          const row = timetableBody.querySelector(`tr:nth-child(${periodIndex + 1})`);
+          const cell = row.querySelector(`td:nth-child(${dayIndex + 2})`);
+          cell.innerHTML = cellData.content;
+          if (cellData.time) cell.setAttribute('data-time', cellData.time);
+        }
+      });
+    });
+  }
+
   // 授業追加
   addClassForm.addEventListener('submit', (e) => {
     e.preventDefault();
-  
+
     const day = document.getElementById('day').value;
     const period = parseInt(document.getElementById('period').value, 10);
     const subject = document.getElementById('subject').value;
     const classroom = document.getElementById('classroom').value;
-  
+
     // テーブルの該当するセルに授業を追加
     const dayIndex = ['月曜日', '火曜日', '水曜日', '木曜日', '金曜日'].indexOf(day) + 1;
     const row = timetableBody.querySelector(`tr:nth-child(${period})`);
     const cell = row.querySelector(`td:nth-child(${dayIndex + 1})`);
-  
+
     // 追加する授業内容を設定
-    cell.innerHTML = `<div><strong>${subject}</strong><br><span>${classroom}</span></div>`;
-    cell.setAttribute('data-time', period); // 授業時間データを設定
-  
+    if (!cell.hasAttribute('data-time')) { // すでに授業が設定されていない場合のみ追加
+      cell.innerHTML = `<div><strong>${subject}</strong><br><span>${classroom}</span></div>`;
+      cell.setAttribute('data-time', period); // 授業時間データを設定
+    }
+
     // フォームのリセット
     addClassForm.reset();
-  
-    // ハイライト更新を呼び出す
+
+    // 保存とハイライト更新
+    saveTimetable();
     highlightNextClass();
   });
-  
 
   // 次の授業をハイライト
   function highlightNextClass() {
@@ -71,39 +109,40 @@ document.addEventListener('DOMContentLoaded', () => {
     if (nextClassCell) nextClassCell.classList.add('highlight');
   }
 
-  // 1分ごとに次の授業をチェック
+  // 初期化
+  loadTimetable();
   highlightNextClass();
   setInterval(highlightNextClass, 60000);
-});
 
+  // ニュースの取得と表示
+  const newsContainer = document.querySelector('#news-container'); // ニュースを表示する場所
 
-const newsContainer = document.querySelector('#news-container'); // ニュースを表示する場所
+  async function fetchAndDisplayNews() {
+    try {
+      const response = await fetch('/api/news'); // バックエンドのAPIエンドポイント
+      const data = await response.json();
 
-async function fetchAndDisplayNews() {
-  try {
-    const response = await fetch('/api/news'); // バックエンドのAPIエンドポイント
-    const data = await response.json();
-    
-    if (data.articles && data.articles.length > 0) {
-      const randomArticle = data.articles[Math.floor(Math.random() * data.articles.length)];
+      if (data.articles && data.articles.length > 0) {
+        const randomArticle = data.articles[Math.floor(Math.random() * data.articles.length)];
 
-      const newsTitle = document.createElement('a');
-      newsTitle.href = randomArticle.url;
-      newsTitle.textContent = randomArticle.title;
-      newsTitle.target = '_blank';
-      newsTitle.style.textDecoration = 'none';
-      newsTitle.style.color = '#000';
+        const newsTitle = document.createElement('a');
+        newsTitle.href = randomArticle.url;
+        newsTitle.textContent = randomArticle.title;
+        newsTitle.target = '_blank';
+        newsTitle.style.textDecoration = 'none';
+        newsTitle.style.color = '#000';
 
-      newsContainer.innerHTML = ''; // 既存のニュースをクリア
-      newsContainer.appendChild(newsTitle);
-    } else {
-      newsContainer.textContent = 'ニュースが見つかりませんでした。';
+        newsContainer.innerHTML = ''; // 既存のニュースをクリア
+        newsContainer.appendChild(newsTitle);
+      } else {
+        newsContainer.textContent = 'ニュースが見つかりませんでした。';
+      }
+    } catch (error) {
+      console.error('ニュース取得エラー:', error);
+      newsContainer.textContent = 'ニュースを取得できませんでした。';
     }
-  } catch (error) {
-    console.error('ニュース取得エラー:', error);
-    newsContainer.textContent = 'ニュースを取得できませんでした。';
   }
-}
 
-// 初期化
-fetchAndDisplayNews();
+  // ニュースの初期化
+  fetchAndDisplayNews();
+});
