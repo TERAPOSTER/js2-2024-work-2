@@ -12,42 +12,104 @@ document.addEventListener('DOMContentLoaded', () => {
     4: [1440, 1610], // 4限 14:40-16:10
     5: [1620, 1750], // 5限 16:20-17:50
   };
+  const resetButton = document.getElementById('reset-button');
+
+  resetButton.addEventListener('click', () => {
+    // テーブル内の全セルをクリア
+    timetableBody.querySelectorAll('td').forEach(cell => {
+      cell.innerHTML = '';
+      cell.removeAttribute('data-time'); // data-time属性も削除
+      // ハイライトの削除
+      timetableBody.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
+      // 保存された時間割データを削除
+      localStorage.removeItem('timetable');  // localStorageに保存しているデータを削除
+    });
+
+    // // ハイライトの削除
+    // timetableBody.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
+    //  // 保存された時間割データを削除
+    // localStorage.removeItem('timetableData');  // localStorageに保存しているデータを削除
+  });
+
 
   // 時間割データを保存
   function saveTimetable() {
-    const timetableData = [];
+    const timetable = [];
+    const rows = document.querySelectorAll(".timetable-row");
 
-    timetableBody.querySelectorAll('tr').forEach((row, periodIndex) => {
-      const periodData = [];
-      row.querySelectorAll('td').forEach(cell => {
-        const cellData = cell.innerHTML ? {
-          content: cell.innerHTML,
-          time: cell.getAttribute('data-time'),
-        } : null;
-        periodData.push(cellData);
-      });
-      timetableData.push(periodData);
+    rows.forEach((row, rowIndex) => {
+        const rowData = [];
+        row.querySelectorAll("td").forEach((cell, cellIndex) => {
+            // 時間帯ラベル（例: "1限", "2限"）を除外
+            if (cellIndex === 0) {
+                rowData.push(null); // ラベル用セルはnullで保存
+            } else {
+                rowData.push({
+                    content: cell.innerHTML.trim() || null, // 内容がなければnull
+                    time: cell.dataset.time || null, // 必要ならtime属性も保存
+                });
+            }
+        });
+        timetable.push(rowData);
     });
 
-    localStorage.setItem('timetable', JSON.stringify(timetableData));
+    localStorage.setItem("timetable", JSON.stringify(timetable));
+  }
+
+
+
+  // 時間割データを保存
+  function saveTimetable() {
+    const timetable = [];
+    const rows = document.querySelectorAll("tr"); // tr要素を直接取得
+
+    rows.forEach((row, rowIndex) => {
+      const rowData = [];
+      row.querySelectorAll("td").forEach((cell, cellIndex) => {
+        if (cellIndex === 0) {
+          rowData.push(null); // 時間帯ラベル用セルはnullで保存
+        } else {
+          rowData.push({
+            content: cell.innerHTML.trim() || null, // 内容がなければnull
+            time: cell.dataset.time || null, // 必要ならtime属性も保存
+          });
+        }
+      });
+      timetable.push(rowData);
+    });
+
+    localStorage.setItem("timetable", JSON.stringify(timetable));
   }
 
   // 時間割データを復元
   function loadTimetable() {
-    const timetableData = JSON.parse(localStorage.getItem('timetable'));
-    if (!timetableData) return;
+    const timetable = JSON.parse(localStorage.getItem("timetable"));
+    if (!timetable) return;
 
-    timetableData.forEach((periodData, periodIndex) => {
-      periodData.forEach((cellData, dayIndex) => {
-        if (cellData) {
-          const row = timetableBody.querySelector(`tr:nth-child(${periodIndex + 1})`);
-          const cell = row.querySelector(`td:nth-child(${dayIndex + 2})`);
-          cell.innerHTML = cellData.content;
-          if (cellData.time) cell.setAttribute('data-time', cellData.time);
+    const rows = document.querySelectorAll("tr"); // tr要素を直接取得
+
+    rows.forEach((row, rowIndex) => {
+      const cells = row.querySelectorAll("td");
+
+      cells.forEach((cell, cellIndex) => {
+        if (cellIndex === 0) {
+          // 時間帯ラベルを設定
+          cell.innerHTML = `${rowIndex + 1}限`;
+        } else {
+          const cellData = timetable[rowIndex]?.[cellIndex];
+          if (cellData) {
+            cell.innerHTML = cellData.content || ""; // 内容を設定
+            if (cellData.time) {
+              cell.dataset.time = cellData.time; // 必要ならtime属性も復元
+            }
+          } else {
+            cell.innerHTML = ""; // 空の場合
+          }
         }
       });
     });
   }
+
 
   // 授業追加
   addClassForm.addEventListener('submit', (e) => {
