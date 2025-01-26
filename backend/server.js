@@ -14,7 +14,7 @@ app.get('/api/news', async (req, res) => {
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: 'ニュースを取得できませんでした' });
+    res.status(500).json({ error: 'ニュースを取得できませんでした(追記:NewsAPI側の不具合(?)でニュースの更新がない可能性があります。)' });
   }
 });
 
